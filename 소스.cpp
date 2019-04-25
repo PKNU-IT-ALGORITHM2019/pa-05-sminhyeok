@@ -18,13 +18,13 @@ struct NODE {
 class Tree{
 public:
 	NODE* root;
-	int EA;	// ´Ü¾î ¼ö(size)
-	int DC; // »èÁ¦ÇÑ ´Ü¾î ¼ö (Delete Count)
+	int EA;	// ë‹¨ì–´ ìˆ˜(size)
+	int DC; // ì‚­ì œí•œ ë‹¨ì–´ ìˆ˜ (Delete Count)
 	Tree() {
 		root = NULL;
 		EA = 0;
 		DC = 0;
-	}// »ı¼ºÀÚ ÃÊ±âÈ­
+	}// ìƒì„±ì ì´ˆê¸°í™”
 
 	void insert(string w, string c, string m) {
 		NODE* temp = new NODE;
@@ -37,10 +37,16 @@ public:
 
 		if (root != NULL) {
 			NODE* cursor = root;
-			NODE* before = root;	// cursor µÚ µû¶ó°¡´Â ³ëµå. cursorÀÇ ºÎ¸ğ³ëµå
+			NODE* before = root;	// cursor ë’¤ ë”°ë¼ê°€ëŠ” ë…¸ë“œ. cursorì˜ ë¶€ëª¨ë…¸ë“œ
 			bool L = false;
 			while (cursor != NULL) {
-				if (cursor->W == w) return;	// µ¿ÀÏ´Ü¾î insert X
+				if (cursor->W == w) {
+					temp->right = cursor->right;
+					cursor->right = temp;
+					temp->parent = cursor;
+					EA++;
+					return;
+				}
 				before = cursor;
 				if (cursor->W > w) { cursor = cursor->left; L = true; }
 				else { cursor = cursor->right; L = false; }
@@ -57,7 +63,7 @@ public:
 			EA++;
 		}
 
-	}// insert ¿¬»ê
+	}// insert ì—°ì‚°
 
 	void add() {
 		string w,c,  m = "";
@@ -115,7 +121,7 @@ public:
 
 			if (cursor == P->right) P->right = NULL;
 			else P->left = NULL;
-		}// ÀÚ½ÄÀÌ ¾ø´Â °æ¿ì
+		}// ìì‹ì´ ì—†ëŠ” ê²½ìš°
 		else if (LC != NULL && RC != NULL) {
 			LC->parent = RC;
 			RC->left = LC;
@@ -129,7 +135,7 @@ public:
 			else P->left = RC;
 			RC->parent = P;
 
-		}// ÀÚ½ÄÀÌ 2ÀÎ °æ¿ì
+		}// ìì‹ì´ 2ì¸ ê²½ìš°
 		else {
 			NODE* C;
 			if (LC != NULL) C = LC;
@@ -143,7 +149,7 @@ public:
 			if (P->right == cursor) P->right = C;
 			else P->left = C;
 			C->parent = P;
-		}// ÀÚ½ÄÀÌ 1ÀÎ °æ¿ì
+		}// ìì‹ì´ 1ì¸ ê²½ìš°
 	}
 
 	void print() {
@@ -173,30 +179,30 @@ void init() {
 	char line[BUFFER];
 	while (NULL != fgets(line, sizeof(line), fin)) {
 		if (strcmp("\n", line) == 0) continue;
-		string str(line);	// char ¹è¿­ lineÀ» string Çü str¿¡ ´ãÀ½
+		string str(line);	// char ë°°ì—´ lineì„ string í˜• strì— ë‹´ìŒ
 		int pos1, pos2;
 		pos1 = str.find("(");
 		pos2 = str.find(")");
 
-		w = str.substr(0, pos1 - 1);					// ( ¾Õ±îÁö´Â ´Ü¾î
-		c = str.substr(pos1, pos2 - pos1 + 1);			// () »çÀÌ´Â Ç°»ç
-		m = str.substr(pos2 + 1, str.size() - pos2 - 2);// ) µÚ´Â ¼³¸í
+		w = str.substr(0, pos1 - 1);					// ( ì•ê¹Œì§€ëŠ” ë‹¨ì–´
+		c = str.substr(pos1, pos2 - pos1 + 1);			// () ì‚¬ì´ëŠ” í’ˆì‚¬
+		m = str.substr(pos2 + 1, str.size() - pos2 - 2);// ) ë’¤ëŠ” ì„¤ëª…
 		T.insert(w, c, m);
 	}
 	fclose(fin);
 }
 
 void process() {
-	string line, cmd;	// ÀÔ·Â, ¸í·É¾î
+	string line, cmd;	// ì…ë ¥, ëª…ë ¹ì–´
 	while (1) {
 		cout << "$ ";
-		getline(cin, line);	// °ø¹é ÀÔ·Âµµ Ã³¸®ÇÏ±âÀ§ÇÔ
+		getline(cin, line);	// ê³µë°± ì…ë ¥ë„ ì²˜ë¦¬í•˜ê¸°ìœ„í•¨
 		istringstream iss(line);
-		iss >> cmd;	// ´Ü¾î »çÀÌÀÇ °ø¹é ¹«½ÃÇÏ°í ÀÔ·Â¹ŞÀ½
+		iss >> cmd;	// ë‹¨ì–´ ì‚¬ì´ì˜ ê³µë°± ë¬´ì‹œí•˜ê³  ì…ë ¥ë°›ìŒ
 		
-		if (cmd == "add") {  T.add(); }	// ÀĞ±â µ¿ÀÛ
-		else if (cmd == "size") { cout << T.EA << endl; }	// »çÀü »çÀÌÁî Ãâ·Â
-		else if (cmd == "find") { if (iss >> cmd) T.find(cmd); }	// ´Ü¾î Ã£±â
+		if (cmd == "add") {  T.add(); }	// ì½ê¸° ë™ì‘
+		else if (cmd == "size") { cout << T.EA << endl; }	// ì‚¬ì „ ì‚¬ì´ì¦ˆ ì¶œë ¥
+		else if (cmd == "find") { if (iss >> cmd) T.find(cmd); }	// ë‹¨ì–´ ì°¾ê¸°
 		else if (cmd == "delete") { if (iss >> cmd) T.del(cmd); }
 		else if (cmd == "deleteall") { if (iss >> cmd) T.multi_delete(cmd); }
 		else if (cmd == "print") { T.print(); }
